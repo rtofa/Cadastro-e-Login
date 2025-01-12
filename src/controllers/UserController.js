@@ -1,4 +1,4 @@
-import { User } from '../models';
+import User  from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 
@@ -20,9 +20,8 @@ class UserController {
                 });
             }
 
-            const userAlreadyExists = await User.findOne({where: {email}});
-
-            if (!userAlreadyExists) {
+            const userAlreadyExists = await User.findOne({where: {email} });
+            if (userAlreadyExists) {
                 return res.status(400).send({
                     message: 'Este email já está cadastrado.',
                 })

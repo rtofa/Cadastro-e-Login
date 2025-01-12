@@ -1,9 +1,0 @@
-{
-  "development": {
-    "username": "postgres",
-    "password": "corevalues",
-    "database": "taskify",
-    "host": "localhost",
-    "dialect": "postgres"
-  }
-}
