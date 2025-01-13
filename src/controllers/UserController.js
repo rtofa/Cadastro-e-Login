@@ -102,7 +102,7 @@ class UserController {
                 });
             }
 
-            // Verificar se o usuário existe
+
             const user = await User.findOne({ where: { email } });
 
             if (!user) {
@@ -111,7 +111,7 @@ class UserController {
                 });
             }
 
-            // Verificar se a senha fornecida é a mesma do banco
+
             const passwordMatch = await bcrypt.compare(password, user.password);
 
             if (!passwordMatch) {
@@ -144,7 +144,7 @@ class UserController {
         }
     }
 
-    // Função para buscar um usuário
+
     async show(req, res) {
         try {
             const { id } = req.params;
@@ -170,7 +170,7 @@ class UserController {
         }
     }
 
-    // Função para atualizar um usuário
+
     async update(req, res) {
         try {
             const { id } = req.params;
@@ -208,7 +208,7 @@ class UserController {
         }
     }
 
-    // Função para deletar um usuário
+
     async delete(req, res) {
         try {
             const { id } = req.params;
