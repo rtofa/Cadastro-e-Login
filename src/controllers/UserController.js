@@ -245,7 +245,7 @@ class UserController {
         }
 
 
-        const resetCode = crypto.randomBytes(3).toString('hex');  // Gera um código de 6 caracteres (3 bytes)
+        let resetCode = crypto.randomBytes(3).toString('hex');  // Gera um código de 6 caracteres (3 bytes)
 
 
         await user.update({
@@ -268,37 +268,51 @@ class UserController {
     }
 
     async resetPassword(req, res) {
-        const { email, resetCode, newPassword } = req.body;
+        try {
+            const { email, resetCode, newPassword } = req.body;
 
-        const user = await User.findOne({ where: { email, resetCode } });
-        if (!user) {
-            return res.status(400).send({
-                message: 'Código de redefinição de senha inválido ou expirado.',
+            // Verificação básica de entrada
+            if (!email || !resetCode || !newPassword) {
+                return res.status(400).send({
+                    message: 'Todos os campos são obrigatórios.',
+                });
+            }
+
+            // Buscar o usuário pelo email e código de redefinição
+            const user = await User.findOne({ where: { email, resetCode } });
+            if (!user) {
+                return res.status(400).send({
+                    message: 'Código de redefinição inválido ou expirado.',
+                });
+            }
+
+            // Validar se o código expirou
+            if (Date.now() > user.resetCodeExpires) {
+                return res.status(400).send({
+                    message: 'Código de redefinição expirado.',
+                });
+            }
+
+            // Criptografar a nova senha
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            // Atualizar a senha do usuário e limpar o código de redefinição
+            await user.update({
+                password: hashedPassword,
+                resetCode: null,
+                resetCodeExpires: null,
+            });
+
+            return res.status(200).send({
+                message: 'Senha redefinida com sucesso!',
+            });
+        } catch (error) {
+            console.error('Erro ao redefinir senha:', error);
+            return res.status(500).send({
+                message: 'Erro interno ao redefinir a senha. Tente novamente mais tarde.',
             });
         }
-
-
-        if (Date.now() > user.resetCodeExpires) {
-            return res.status(400).send({
-                message: 'Código de redefinição de senha expirado.',
-            });
-        }
-
-        // Criptografar a nova senha
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        // Atualizar a senha do usuário e limpar o código de redefinição
-        await user.update({
-            password: hashedPassword,
-            resetCode: null,
-            resetCodeExpires: null,
-        });
-
-        return res.status(200).send({
-            message: 'Senha redefinida com sucesso!',
-        });
     }
-
 }
 
 export default new UserController();
