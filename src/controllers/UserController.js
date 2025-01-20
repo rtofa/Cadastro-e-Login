@@ -271,14 +271,14 @@ class UserController {
         try {
             const { email, resetCode, newPassword } = req.body;
 
-            // Verificação básica de entrada
+
             if (!email || !resetCode || !newPassword) {
                 return res.status(400).send({
                     message: 'Todos os campos são obrigatórios.',
                 });
             }
 
-            // Buscar o usuário pelo email e código de redefinição
+
             const user = await User.findOne({ where: { email, resetCode } });
             if (!user) {
                 return res.status(400).send({
@@ -286,17 +286,17 @@ class UserController {
                 });
             }
 
-            // Validar se o código expirou
+
             if (Date.now() > user.resetCodeExpires) {
                 return res.status(400).send({
                     message: 'Código de redefinição expirado.',
                 });
             }
 
-            // Criptografar a nova senha
+
             const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-            // Atualizar a senha do usuário e limpar o código de redefinição
+
             await user.update({
                 password: hashedPassword,
                 resetCode: null,
